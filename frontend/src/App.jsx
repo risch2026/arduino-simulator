@@ -1,104 +1,65 @@
-import { BrowserRouter, Routes, Route, Link, useLocation, Navigate } from 'react-router-dom';
-import { AuthProvider, useAuth } from './context/AuthContext';
+import { useState } from 'react';
+import Auth from './components/Auth/Auth';
+import Lessons from './components/Lessons/Lessons';
 import Simulator from './components/Simulator/Simulator';
-import TeacherDashboard from './components/Teacher/TeacherDashboard';
-import Materials from './components/Materials/Materials';
 import Projects from './components/Projects/Projects';
-import Login from './components/Auth/Login';
+import TeacherDashboard from './components/Teacher/TeacherDashboard';
+import { useAuth } from './store/auth';
 
-function NavBar() {
-  const { user, logout, isTeacher } = useAuth();
-  const location = useLocation();
-  
-  const links = [
-    { to: '/', label: '🔧 Симулятор' },
-    { to: '/materials', label: '📚 Материалы' },
-    { to: '/projects', label: '📁 Проекты' },
-  ];
-  
-  if (isTeacher) {
-    links.push({ to: '/teacher', label: '👨‍ Панель учителя' });
-  }
+export default function App() {
+  const { user, logout } = useAuth();
+  const [tab, setTab] = useState('lessons');
+
+  if (!user) return <Auth />;
+
+  const btnClass = (active) =>
+    'px-3 py-1 rounded transition-colors ' +
+    (active ? 'bg-blue-600 text-white' : 'hover:bg-slate-700 text-slate-300');
 
   return (
-    <nav className="bg-slate-800 border-b border-slate-700 px-4 py-2 flex items-center gap-1">
-      <span className="text-white font-bold mr-4">Arduino Lab</span>
-      {links.map(link => (
-        <Link
-          key={link.to}
-          to={link.to}
-          className={`px-3 py-1.5 rounded text-sm transition-colors ${
-            location.pathname === link.to
-              ? 'bg-blue-600 text-white'
-              : 'text-slate-300 hover:bg-slate-700 hover:text-white'
-          }`}
-        >
-          {link.label}
-        </Link>
-      ))}
-      <div className="ml-auto flex items-center gap-3">
-        {user && (
-          <span className="text-sm text-slate-300">
-            {user.role === 'teacher' ? '‍🏫' : '👨‍🎓'} {user.name}
+    <div className="min-h-screen bg-slate-900 text-white">
+      <header className="bg-slate-800 p-4 flex justify-between items-center shadow-lg flex-wrap gap-2">
+        <h1 className="text-xl font-bold">🔧 Arduino Simulator</h1>
+
+        <nav className="flex gap-2 flex-wrap">
+          <button onClick={() => setTab('lessons')} className={btnClass(tab === 'lessons')}>
+            📚 Учебные материалы
+          </button>
+          <button onClick={() => setTab('simulator')} className={btnClass(tab === 'simulator')}>
+            🔧 Симулятор
+          </button>
+          <button onClick={() => setTab('projects')} className={btnClass(tab === 'projects')}>
+            📁 Мои проекты
+          </button>
+          {user.role === 'teacher' && (
+            <button onClick={() => setTab('dashboard')} className={btnClass(tab === 'dashboard')}>
+              👨‍🏫 Класс
+            </button>
+          )}
+        </nav>
+
+        <div className="flex items-center gap-3">
+          <span className="text-sm">
+            {user.username}
+            <span className="ml-2 px-2 py-0.5 rounded text-xs bg-slate-700">
+              {user.role === 'teacher' ? 'Учитель' : 'Ученик'}
+            </span>
           </span>
-        )}
-        {user ? (
           <button
             onClick={logout}
-            className="px-3 py-1.5 bg-red-700 hover:bg-red-600 rounded text-sm"
+            className="text-red-400 text-sm hover:text-red-300 px-2 py-1 rounded hover:bg-slate-700"
           >
             Выйти
           </button>
-        ) : (
-          <Link
-            to="/login"
-            className="px-3 py-1.5 bg-green-700 hover:bg-green-600 rounded text-sm"
-          >
-            🔑 Вход
-          </Link>
-        )}
-      </div>
-    </nav>
-  );
-}
+        </div>
+      </header>
 
-// Защита роута: требует авторизации
-function ProtectedRoute({ children, requireTeacher = false }) {
-  const { user, isTeacher } = useAuth();
-  if (!user) return <Navigate to="/login" replace />;
-  if (requireTeacher && !isTeacher) return <Navigate to="/" replace />;
-  return children;
-}
-
-function AppContent() {
-  return (
-    <div className="h-screen flex flex-col bg-slate-900 text-white">
-      <NavBar />
-      <div className="flex-1 overflow-hidden">
-        <Routes>
-          <Route path="/login" element={<Login />} />
-          <Route path="/" element={<ProtectedRoute><Simulator /></ProtectedRoute>} />
-          <Route path="/teacher" element={
-            <ProtectedRoute requireTeacher={true}>
-              <TeacherDashboard />
-            </ProtectedRoute>
-          } />
-          <Route path="/materials" element={<ProtectedRoute><Materials /></ProtectedRoute>} />
-          <Route path="/projects" element={<ProtectedRoute><Projects /></ProtectedRoute>} />
-        </Routes>
-      </div>
+      <main className="p-4" style={{ height: 'calc(100vh - 80px)' }}>
+        {tab === 'lessons' && <Lessons onOpenInSimulator={() => setTab('simulator')} />}
+        {tab === 'simulator' && <Simulator />}
+        {tab === 'projects' && <Projects onLoad={() => setTab('simulator')} />}
+        {tab === 'dashboard' && user.role === 'teacher' && <TeacherDashboard />}
+      </main>
     </div>
   );
 }
-
-function App() {
-  return (
-    <BrowserRouter>
-      <AuthProvider>
-        <AppContent />
-      </AuthProvider>
-    </BrowserRouter>
-  );
-}
-
-export default App;

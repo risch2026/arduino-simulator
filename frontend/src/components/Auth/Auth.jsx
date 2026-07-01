@@ -1,60 +1,90 @@
-﻿
 import { useState } from 'react';
 import { useAuth } from '../../store/auth';
-import api from '../../api';
 
 export default function Auth() {
+  const [mode, setMode] = useState('student');
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
   const { login } = useAuth();
-  const [mode, setMode] = useState('login');
-  const [form, setForm] = useState({ username: '', password: '', role: 'student' });
-  const [error, setError] = useState('');
 
-  const submit = async (e) => {
-    e.preventDefault();
-    setError('');
-    try {
-      if (mode === 'register') {
-        await api.post('/register', form);
-        const res = await api.post('/login', { username: form.username, password: form.password });
-        login(res.user, res.token);
-      } else {
-        const res = await api.post('/login', { username: form.username, password: form.password });
-        login(res.user, res.token);
-      }
-    } catch (err) {
-      setError(err.response?.data?.error || 'Ошибка подключения к серверу');
+  const handleLogin = () => {
+    if (!username.trim()) {
+      alert('Введите имя');
+      return;
     }
+
+    if (mode === 'teacher' && password !== 'teacher123') {
+      alert('Неверный пароль учителя (подсказка: teacher123)');
+      return;
+    }
+
+    login({
+      username: username.trim(),
+      role: mode,
+      classroomId: 'class-1'
+    });
   };
 
-  const btnClass = (active) => 'flex-1 py-2 rounded ' + (active ? 'bg-blue-600' : 'bg-slate-700');
-
   return (
-    <div className="min-h-screen bg-slate-900 flex items-center justify-center">
-      <div className="bg-slate-800 p-8 rounded-lg shadow-xl w-96">
-        <h1 className="text-2xl font-bold text-center mb-6">Arduino Simulator</h1>
-        <div className="flex gap-2 mb-4">
-          <button type="button" onClick={() => setMode('login')} className={btnClass(mode==='login')}>Вход</button>
-          <button type="button" onClick={() => setMode('register')} className={btnClass(mode==='register')}>Регистрация</button>
-        </div>
-        <form onSubmit={submit} className="space-y-3">
-          <input placeholder="Логин" value={form.username}
-            onChange={e => setForm({...form, username: e.target.value})}
-            className="w-full p-2 bg-slate-700 rounded" required/>
-          <input type="password" placeholder="Пароль" value={form.password}
-            onChange={e => setForm({...form, password: e.target.value})}
-            className="w-full p-2 bg-slate-700 rounded" required/>
-          {mode === 'register' && (
-            <select value={form.role} onChange={e => setForm({...form, role: e.target.value})}
-              className="w-full p-2 bg-slate-700 rounded">
-              <option value="student">Ученик</option>
-              <option value="teacher">Учитель</option>
-            </select>
-          )}
-          {error && <div className="text-red-400 text-sm">{error}</div>}
-          <button type="submit" className="w-full bg-green-600 hover:bg-green-500 p-2 rounded font-bold">
-            {mode === 'login' ? 'Войти' : 'Зарегистрироваться'}
+    <div className="min-h-screen flex items-center justify-center bg-slate-900">
+      <div className="bg-slate-800 p-8 rounded-lg shadow-xl w-96 border border-slate-700">
+        <h1 className="text-2xl font-bold text-center mb-6">🔑 Вход в систему</h1>
+
+        <div className="flex gap-2 mb-6">
+          <button
+            onClick={() => setMode('student')}
+            className={`flex-1 py-2 rounded ${
+              mode === 'student' ? 'bg-blue-600' : 'bg-slate-700 hover:bg-slate-600'
+            }`}
+          >
+            👨‍🎓 Ученик
           </button>
-        </form>
+          <button
+            onClick={() => setMode('teacher')}
+            className={`flex-1 py-2 rounded ${
+              mode === 'teacher' ? 'bg-purple-600' : 'bg-slate-700 hover:bg-slate-600'
+            }`}
+          >
+            👨‍🏫 Учитель
+          </button>
+        </div>
+
+        <div className="mb-4">
+          <label className="block text-sm text-slate-400 mb-1">Имя</label>
+          <input
+            type="text"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            onKeyDown={(e) => e.key === 'Enter' && handleLogin()}
+            placeholder={mode === 'student' ? 'Иван Иванов' : 'Мария Петровна'}
+            className="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded text-white"
+          />
+        </div>
+
+        {mode === 'teacher' && (
+          <div className="mb-4">
+            <label className="block text-sm text-slate-400 mb-1">Пароль учителя</label>
+            <input
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && handleLogin()}
+              placeholder="teacher123"
+              className="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded text-white"
+            />
+          </div>
+        )}
+
+        <button
+          onClick={handleLogin}
+          className="w-full py-2 bg-green-600 hover:bg-green-500 rounded font-medium"
+        >
+          Войти как {mode === 'student' ? 'ученик' : 'учитель'}
+        </button>
+
+        <p className="text-xs text-slate-500 text-center mt-4">
+          {mode === 'teacher' ? 'Пароль: teacher123' : 'Демо-режим'}
+        </p>
       </div>
     </div>
   );

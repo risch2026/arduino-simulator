@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useAuth } from '../../context/AuthContext';
+import { useAuth } from '../../store/auth';
 import TestEditor from './TestEditor';
 
 const DEFAULT_LESSONS = [

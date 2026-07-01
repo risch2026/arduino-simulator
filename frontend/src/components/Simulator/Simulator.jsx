@@ -5,7 +5,7 @@ import Inspector from './Inspector';
 import { ArduinoEngine } from './engine';
 import { exportCircuitJSON, importCircuitJSON, exportIno } from '../../utils/export';
 import { useStudentSocket } from '../../hooks/useStudentSocket';
-import { useAuth } from '../../context/AuthContext';
+import { useAuth } from '../../store/auth';
 import { TestRunner } from '../../utils/testRunner';
 
 const DEFAULT_CODE = `void setup() {
