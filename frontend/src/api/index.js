@@ -1,0 +1,20 @@
+import axios from 'axios';
+
+const api = axios.create({
+  baseURL: 'http://localhost:3001/api'
+});
+
+api.interceptors.request.use((config) => {
+  const token = localStorage.getItem('token');
+  if (token) {
+    config.headers.Authorization = 'Bearer ' + token;
+  }
+  return config;
+});
+
+export default {
+  get: async (url) => (await api.get(url)).data,
+  post: async (url, data) => (await api.post(url, data)).data,
+  put: async (url, data) => (await api.put(url, data)).data,
+  delete: async (url) => (await api.delete(url)).data,
+};

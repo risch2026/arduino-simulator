@@ -1,0 +1,33 @@
+{
+  "id": "blink-101",
+  "title": "Мигание светодиодом",
+  "description": "Напишите программу, которая мигает светодиодом на пине 13 с интервалом 500мс",
+  "initialCode": "void setup() {\n  pinMode(13, OUTPUT);\n}\n\nvoid loop() {\n  // ваш код\n}",
+  "tests": [
+    {
+      "name": "pinMode вызван",
+      "type": "code-check",
+      "pattern": "pinMode\\s*\\(\\s*13\\s*,\\s*OUTPUT\\s*\\)"
+    },
+    {
+      "name": "digitalWrite HIGH",
+      "type": "code-check",
+      "pattern": "digitalWrite\\s*\\(\\s*13\\s*,\\s*HIGH\\s*\\)"
+    },
+    {
+      "name": "delay 500",
+      "type": "code-check",
+      "pattern": "delay\\s*\\(\\s*500\\s*\\)"
+    },
+    {
+      "name": "Симуляция: LED мигает",
+      "type": "simulation",
+      "steps": 10,
+      "expected": [
+        { "pin": 13, "value": 1, "at": 0 },
+        { "pin": 13, "value": 0, "at": 500 }
+      ]
+    }
+  ],
+  "solution": "void setup() {\n  pinMode(13, OUTPUT);\n}\n\nvoid loop() {\n  digitalWrite(13, HIGH);\n  delay(500);\n  digitalWrite(13, LOW);\n  delay(500);\n}"
+}

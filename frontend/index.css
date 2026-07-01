@@ -1,0 +1,35 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Подсветка текущей строки в Monaco */
+.current-line-highlight {
+  background-color: rgba(255, 215, 0, 0.15) !important;
+  border-top: 1px solid rgba(255, 215, 0, 0.4);
+  border-bottom: 1px solid rgba(255, 215, 0, 0.4);
+}
+
+.current-line-glyph {
+  background-color: rgba(255, 215, 0, 0.5);
+  width: 5px !important;
+  margin-left: 3px;
+}
+
+/* Принудительная тёмная тема для Monaco Editor */
+.monaco-editor,
+.monaco-editor .margin,
+.monaco-editor-background {
+  background-color: #1e1e1e !important;
+}
+
+.monaco-editor .view-lines {
+  color: #d4d4d4 !important;
+}
+
+.monaco-editor .line-numbers {
+  color: #858585 !important;
+}
+
+.monaco-editor .current-line {
+  background-color: rgba(255, 255, 255, 0.04) !important;
+}
