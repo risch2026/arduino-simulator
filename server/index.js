@@ -2,10 +2,18 @@ const express = require('express');
 const http = require('http');
 const { Server } = require('socket.io');
 const cors = require('cors');
+
+
+
 require('dotenv').config();
 
 const app = express();
-app.use(cors({ origin: '*', credentials: true }));
+app.use(cors({
+  origin: '*',           // Разрешить все домены
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
 app.use(express.json({ limit: '10mb' }));
 
 // Импорт роутов
